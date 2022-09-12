@@ -32,7 +32,7 @@
 
 	-- Fetch Local Background Media
 	
-	local function glob(...)
+	function glob(...)
 		local iter, code, msg = fs.glob(...)
 		if iter then
 			return nutil.consume(iter)
@@ -42,20 +42,14 @@
 	end
 
 
-	local imageTypes = " jpg png gif "
-	local videoTypes = " mp4 webm "
-	local allTypes = imageTypes .. videoTypes
-	local function fetchMedia(path,themeDir)
+	function fetchMedia(path,themeDir)
 		local backgroundTable 	= {}
 		local backgroundCount 	= 0
 		for i, f in ipairs(glob(path)) do
 			attr = fs.stat(f)
 			if attr then
 				local ext = fs.basename(f):match(".+%.(%w+)$")
-				if ext ~= nil then
-					ext = ext:lower()
-				end
-				if ext ~= nil and string.match(allTypes, " "..ext.." ") ~= nil then
+				if ext == "jpg" or ext == "png" or ext == "gif" or ext == "mp4" then
 					local bg = {}
 					bg.type = ext
 					bg.url = themeDir .. fs.basename(f)
@@ -66,36 +60,28 @@
 		end
 		return backgroundTable,backgroundCount
 	end
-	local function selectBackground(themeDir)
-		local bgUrl 			= media .. "/img/bg1.jpg"
-		local backgroundType 	= "Image"
-		local mimeType 			= ""
-
-		if fs.access("/etc/config/argon") then
-			if uci:get_first('argon', 'global', 'bing_background') == "1" then
-				local bing = sys.exec("/usr/libexec/argon/bing_wallpaper")
-				if (bing and bing ~= '') then
-					return bing, "Image", ""
-				end
-			end
-		end
-
-		local backgroundTable, backgroundCount 		= fetchMedia("/www" .. themeDir .. "*",themeDir)
-		if ( backgroundCount > 0 ) then
-			local currentBg = backgroundTable[math.random(1,backgroundCount)]
-			bgUrl 			= currentBg.url
-			if (string.match(videoTypes, " "..currentBg.type.." ") ~= nil) then
-				backgroundType 	= "Video"
-				mimeType 		= "video/" .. currentBg.type
-			end
-		end
-
-		return bgUrl,backgroundType,mimeType
-	end
 
 	local boardinfo			= util.ubus("system", "board")
+	local bingUrl 			= "api.vvhan.com"
+	local bingApiUrl 		= "https://" .. bingUrl .. "/api/girl"
 	local themeDir			= media .. "/background/"
-	local bgUrl,backgroundType,mimeType = selectBackground(themeDir)
+	local bgUrl 			= media .. "/img/bg1.jpg"
+	local useBing			= fs.access('/etc/config/argon') and "1" or "0"
+	local backgroundTable, backgroundCount 		= fetchMedia("/www" .. themeDir .. "*",themeDir)
+	local backgroundType 	= "Image"
+
+	if ( backgroundCount > 0 ) then
+		local currentBg = backgroundTable[math.random(1,backgroundCount)]
+		bgUrl 			= currentBg.url
+		if (currentBg.type == "mp4" ) then
+			backgroundType 	= "Video"
+		end
+	else
+		local bing = sys.call("tcping -q -c1 -t1 -p80 '%s' >&2" %bingUrl) == 0
+		if bing then
+			bgUrl 	= bingApiUrl
+		end
+	end
 %>
 <!-- Login Page Start -->
 <div class="login-page">
@@ -103,7 +89,7 @@
 	<!-- Video Player Start -->
 	<div class="video">
 		<video autoplay loop muted id="video">
-			<source src="<%=bgUrl%>" type="<%=mimeType%>">
+			<source src="<%=bgUrl%>" type="video/mp4">
 		</video>
 	</div>
 	<div class="volume-control mute"></div>
