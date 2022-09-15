@@ -62,8 +62,8 @@
 	end
 
 	local boardinfo			= util.ubus("system", "board")
-	local bingUrl 			= "api.vvhan.com"
-	local bingApiUrl 		= "https://" .. bingUrl .. "/api/girl"
+	local bingUrl 			= "api.ghser.com"
+	local bingApiUrl 		= "https://" .. bingUrl .. "/random/api.php"
 	local themeDir			= media .. "/background/"
 	local bgUrl 			= media .. "/img/bg1.jpg"
 	local useBing			= fs.access('/etc/config/argon') and "1" or "0"
