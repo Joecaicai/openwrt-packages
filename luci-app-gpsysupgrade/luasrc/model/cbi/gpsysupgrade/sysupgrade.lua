@@ -30,15 +30,24 @@ function to_check()
     if not board_name or board_name == "" then board_name = api.auto_get_board_name() end
 	sysverformat = luci.sys.exec("date -d $(echo " ..get_system_version().. " | awk -F. '{printf $3\"-\"$1\"-\"$2}') +%s")
 	currentTimeStamp = luci.sys.exec("expr $(date -d \"$(date '+%Y-%m-%d %H:%M:%S')\" +%s) - 172800")
-	if board_name == "x86_64" then
-		model = "x86_64"
-		check_update()
-		if fs.access("/sys/firmware/efi") then
-			download_url = "https://op.supes.top/firmware/" ..model.. "/" ..remote_version.. "-openwrt-x86-64-generic-squashfs-combined-efi.img.gz"
-		else
-			download_url = "https://op.supes.top/firmware/" ..model.. "/" ..remote_version.. "-openwrt-x86-64-generic-squashfs-combined.img.gz"
-			md5 = ""
-		end
+    if board_name == "x86_64" then
+    	model = "x86_64"
+    	check_update()
+    	if fs.access("/sys/firmware/efi") then
+    		download_url = "https://op.supes.top/firmware/" ..model.. "/" ..remote_version.. "-openwrt-x86-64-generic-squashfs-combined-efi.img.gz"
+    	else
+    		download_url = "https://op.supes.top/firmware/" ..model.. "/" ..remote_version.. "-openwrt-x86-64-generic-squashfs-combined.img.gz"
+    		md5 = ""
+    	end
+    elseif board_name == "x86_generic" then
+    	model = "x86_generic"
+    	check_update()
+    	if fs.access("/sys/firmware/efi") then
+    		download_url = "https://op.supes.top/firmware/" ..model.. "/" ..remote_version.. "-openwrt-x86-generic-squashfs-combined-efi.img.gz"
+    	else
+    		download_url = "https://op.supes.top/firmware/" ..model.. "/" ..remote_version.. "-openwrt-x86-generic-squashfs-combined.img.gz"
+    		md5 = ""
+    	end
     elseif board_name:match("nanopi%-r2s$") then
 		model = "rockchip_armv8/friendlyarm_nanopi-r2s"
 		check_update()
@@ -167,6 +176,10 @@ function to_check()
 		model = "ramips_mt7621/phicomm_k2p"
 		check_update()
 		download_url = "https://op.supes.top/firmware/" ..model.. "/" ..remote_version.. "-openwrt-ramips-mt7621-phicomm_k2p-squashfs-sysupgrade.bin"
+    elseif board_name:match("phicomm,k2p%-32m$") then
+		model = "ramips_mt7621/phicomm_k2p-32m"
+		check_update()
+		download_url = "https://op.supes.top/firmware/" ..model.. "/" ..remote_version.. "-openwrt-ramips-mt7621-phicomm_k2p-32m-squashfs-sysupgrade.bin"
     elseif board_name:match("phicomm,k3$") then
 		model = "bcm53xx_generic/phicomm_k3"
 		check_update()
@@ -355,6 +368,10 @@ function to_check()
 		model = "ipq40xx_generic/mobipromo_cm520-79f"
 		check_update()
 		download_url = "https://op.supes.top/firmware/" ..model.. "/" ..remote_version.. "-openwrt-ipq40xx-generic-mobipromo_cm520-79f-squashfs-nand-sysupgrade.bin"
+    elseif board_name:match("gl%-a1300$") then
+		model = "ipq40xx_generic/glinet_gl-a1300"
+		check_update()
+		download_url = "https://op.supes.top/firmware/" ..model.. "/" ..remote_version.. "-openwrt-ipq40xx-generic-glinet_gl-a1300-squashfs-nand-sysupgrade.bin"
     elseif board_name:match("rt%-ac88u$") then
 		model = "bcm53xx_generic/asus_rt-ac88u"
 		check_update()
